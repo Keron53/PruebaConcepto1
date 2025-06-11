@@ -5,23 +5,29 @@ import cors from 'cors';
 
 const app = express();
 const httpServer = createServer(app);
+
+
+// ------------ORIGENES----------------------
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // En producción, especifica los orígenes permitidos
+    origin: "*", 
     methods: ["GET", "POST"]
   }
 });
 
-// Middleware
+
+// -------------MIDDLEWARES --------------------
 app.use(cors());
 app.use(express.json());
 
-// Ruta de prueba
+
+// -------------RUTA DE PRUEBAS-----------------
 app.get('/', (req, res) => {
   res.json({ message: 'Servidor WebSocket funcionando' });
 });
 
-// Manejo de conexiones WebSocket
+
+// -------------MANEJO WEBSOCKET-------------------------
 io.on('connection', (socket) => {
   console.log('✅ Cliente conectado:', socket.id);
 
