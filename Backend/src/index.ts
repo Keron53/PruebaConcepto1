@@ -1,61 +1,23 @@
-import express from 'express';
-import { createServer } from 'http';
+import http from 'http';
+import app from './app';
 import { Server } from 'socket.io';
-import cors from 'cors';
+import socketHandler from './sockets/websocketHandler';
 
-const app = express();
-const httpServer = createServer(app);
+const httpServer = http.createServer(app);
 
-
-// ------------ORIGENES----------------------
+// WebSocket con configuración CORS
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", 
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
 
-
-// -------------MIDDLEWARES --------------------
-app.use(cors());
-app.use(express.json());
-
-
-// -------------RUTA DE PRUEBAS-----------------
-app.get('/', (req, res) => {
-  res.json({ message: 'Servidor WebSocket funcionando' });
-});
-
-
-// -------------MANEJO WEBSOCKET-------------------------
-io.on('connection', (socket) => {
-  console.log('✅ Cliente conectado:', socket.id);
-
-  // Manejo de mensajes
-  socket.on('message', (messageData) => {
-    console.log('📨 Mensaje recibido:', messageData);
-    
-    // Reenviar el mensaje a todos los clientes
-    io.emit('message', {
-      ...messageData,
-      id: messageData.id || Date.now().toString(),
-      timestamp: messageData.timestamp || new Date().toISOString()
-    });
-  });
-
-  // Manejo de desconexión
-  socket.on('disconnect', (reason) => {
-    console.log('❌ Cliente desconectado:', socket.id, 'Razón:', reason);
-  });
-
-  // Manejo de errores
-  socket.on('error', (error) => {
-    console.error('🔴 Error en el socket:', error);
-  });
-});
+// Ejecutar lógica WebSocket
+socketHandler(io);
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Servidor WebSocket ejecutándose en http://localhost:${PORT}`);
-}); 
+});
