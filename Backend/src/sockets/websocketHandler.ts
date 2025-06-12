@@ -8,17 +8,18 @@ const socketHandler = (io:Server) => {
     socket.on('message', (messageData) => {
       console.log('📨 Mensaje recibido:', messageData);
 
+          // Reenviar el mensaje a todos los clientes
       io.emit('message', {
         ...messageData,
         id: messageData.id || Date.now().toString(),
         timestamp: messageData.timestamp || new Date().toISOString()
       });
     });
-
+  // Manejo de desconexión
     socket.on('disconnect', (reason) => {
       console.log('❌ Cliente desconectado:', socket.id, 'Razón:', reason);
     });
-
+  // Manejo de errores
     socket.on('error', (error) => {
       console.error('🔴 Error en el socket:', error);
     });
